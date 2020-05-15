@@ -1,4 +1,5 @@
 import 'package:Moesgaard_Dreamcatchers/pages/Widgets/LoadIndicator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:Moesgaard_Dreamcatchers/pages/Widgets/CustomTextField.dart';
@@ -8,7 +9,7 @@ import 'package:Moesgaard_Dreamcatchers/pages/Widgets/CustomFlatButton.dart';
 import 'package:Moesgaard_Dreamcatchers/services/Auth.dart';
 import 'package:Moesgaard_Dreamcatchers/pages/Widgets/CustomAlertDialog.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends StatefulWidget {
   _SignUpScreenState createState() => _SignUpScreenState();
@@ -25,10 +26,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _blackVisible = false;
   VoidCallback onBackPress;
 
+
   @override
   void initState() {
     super.initState();
-
+      
+   
+    
     onBackPress = () {
       Navigator.of(context).pop();
     };
@@ -41,7 +45,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       hint: "Navn",
       validator: Validator.validateName,
     );
-     _emailField = new CustomTextField(
+    _emailField = new CustomTextField(
       baseColor: Colors.grey,
       borderColor: Colors.grey[400],
       errorColor: Colors.red,
@@ -162,12 +166,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: InkWell(child: new Text('Vilkår og betingelser', softWrap: true,
-                        textAlign: TextAlign.center,style: TextStyle(color: Colors.blue),),
-              onTap: () => Navigator.pushNamed(context, "/terms")
-                      )
-                    ),
+                        padding: const EdgeInsets.all(10.0),
+                        child: InkWell(
+                            child: new Text(
+                              'Vilkår og betingelser',
+                              softWrap: true,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                            onTap: () =>
+                                Navigator.pushNamed(context, "/terms"))),
                   ],
                 ),
                 SafeArea(
@@ -210,23 +218,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
       _changeBlackVisible();
       FacebookLogin facebookLogin = new FacebookLogin();
-      FacebookLoginResult result = await facebookLogin
-          .logIn(['email', 'public_profile']);
-      if(result.status == FacebookLoginStatus.loggedIn) {
+      FacebookLoginResult result =
+          await facebookLogin.logIn(['email', 'public_profile']);
+      if (result.status == FacebookLoginStatus.loggedIn) {
         Auth.signInWithFacebok(result.accessToken.token).then((uid) {
-            Auth.getCurrentFirebaseUser().then((firebaseUser) {
-              User user = new User(
-                firstName: firebaseUser.displayName,
-                userID: firebaseUser.uid,
-                email: firebaseUser.email ?? '',
-                profilePictureURL: firebaseUser.photoUrl ?? '',
-              );
-              Auth.addUser(user);
-              onBackPress();
-            });            
+          Auth.getCurrentFirebaseUser().then((firebaseUser) {
+            User user = new User(
+              firstName: firebaseUser.displayName,
+              userID: firebaseUser.uid,
+              email: firebaseUser.email ?? '',
+              profilePictureURL: firebaseUser.photoUrl ?? '',
+            );
+            Auth.addUser(user);
+            savePreferencesOnSignup();
+            onBackPress();
+          });
         });
       }
-      } catch (e) {
+    } catch (e) {
       print("Fejl under oprettelse med Facebook: $e");
       String exception = Auth.getExceptionText(e);
       _showErrorAlert(
@@ -235,10 +244,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         onPressed: _changeBlackVisible,
       );
     }
-          _changeBlackVisible();
-    
+    _changeBlackVisible();
   }
-  
 
   void _signUp(
       {String fullname,
@@ -269,7 +276,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
         );
       }
     }
-    }
+  }
+
+  void savePreferencesOnSignup() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('number', 2);
+    prefs.setBool('bool',false);
+  }
 
   void _showErrorAlert({String title, String content, VoidCallback onPressed}) {
     showDialog(
@@ -284,5 +297,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
       },
     );
   }
-
 }

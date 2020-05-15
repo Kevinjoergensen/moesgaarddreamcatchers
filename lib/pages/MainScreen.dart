@@ -18,10 +18,13 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     print(widget.firebaseUser);
+
   }
 
   @override
   Widget build(BuildContext context) {
+  
+
     return Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(
@@ -47,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
                 },
               ),
               ListTile(
-                title: Text('Log Out'),
+                title: Text('Konto'),
                 onTap: () {
                 Navigator.of(context).pushNamed("/signup");
                   _scaffoldKey.currentState.openEndDrawer();
@@ -56,7 +59,13 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
         ),
-        body: Center());
+        body:        
+        Text("Hej")
+
+        
+          
+          
+        );
     // stream: FirebaseDatabase.instance
     //     .reference()
     //     .child("dreamcatchers")
@@ -86,4 +95,6 @@ class _MainScreenState extends State<MainScreen> {
   void _logOut() async {
     Auth.signOut();
   }
+  
+
 }

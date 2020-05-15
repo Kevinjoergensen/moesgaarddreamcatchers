@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -8,6 +9,7 @@ import 'package:Moesgaard_Dreamcatchers/pages/Widgets/CustomFlatButton.dart';
 import 'package:Moesgaard_Dreamcatchers/pages/Widgets/CustomTextField.dart';
 import 'package:Moesgaard_Dreamcatchers/services/Validator.dart';
 import 'package:Moesgaard_Dreamcatchers/services/Auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   _SignInScreenState createState() => _SignInScreenState();
@@ -21,10 +23,10 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _blackVisible = false;
   VoidCallback onBackPress;
 
+
   @override
   void initState() {
     super.initState();
-
     onBackPress = () {
       Navigator.of(context).pop();
     };
@@ -220,6 +222,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 userID: firebaseUser.uid,
                 email: firebaseUser.email ?? '',
                 profilePictureURL: firebaseUser.photoUrl ?? '',
+                finds: []
               );
               Auth.addUser(user);
               Navigator.of(context).pop();

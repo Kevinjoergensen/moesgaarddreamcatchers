@@ -5,6 +5,7 @@ class User {
   final String firstName;
   final String email;
   final String profilePictureURL;
+  final List<int> finds;
   
 
   User({
@@ -12,6 +13,7 @@ class User {
     this.firstName,
     this.email,
     this.profilePictureURL,
+    this.finds
   });
 
   Map<String, Object> toJson() {
@@ -20,7 +22,8 @@ class User {
       'firstName': firstName,
       'email': email == null ? '' : email,
       'profilePictureURL': profilePictureURL,
-      'appIdentifier': 'flutter-onboarding'
+      'appIdentifier': 'Moesgaard Dreamcatchers App',
+      'finds':finds
     };
   }
 
@@ -30,6 +33,7 @@ class User {
       firstName: doc['firstName'],
       email: doc['email'],
       profilePictureURL: doc['profilePictureURL'],
+      finds:doc['finds']
     );
     return user;
   }
