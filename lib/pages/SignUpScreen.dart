@@ -1,3 +1,4 @@
+import 'package:Moesgaard_Dreamcatchers/pages/Widgets/LoadIndicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:Moesgaard_Dreamcatchers/pages/Widgets/CustomTextField.dart';
@@ -6,6 +7,7 @@ import 'package:Moesgaard_Dreamcatchers/models/User.dart';
 import 'package:Moesgaard_Dreamcatchers/pages/Widgets/CustomFlatButton.dart';
 import 'package:Moesgaard_Dreamcatchers/services/Auth.dart';
 import 'package:Moesgaard_Dreamcatchers/pages/Widgets/CustomAlertDialog.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
 
 class SignUpScreen extends StatefulWidget {
@@ -36,7 +38,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       borderColor: Colors.grey[400],
       errorColor: Colors.red,
       controller: _fullname,
-      hint: "Full Name",
+      hint: "Navn",
       validator: Validator.validateName,
     );
      _emailField = new CustomTextField(
@@ -44,7 +46,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       borderColor: Colors.grey[400],
       errorColor: Colors.red,
       controller: _email,
-      hint: "E-mail Adress",
+      hint: "E-mail Adresse",
       inputType: TextInputType.emailAddress,
       validator: Validator.validateEmail,
     );
@@ -54,7 +56,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       errorColor: Colors.red,
       controller: _password,
       obscureText: true,
-      hint: "Password",
+      hint: "Adgangskode",
       validator: Validator.validatePassword,
     );
   }
@@ -75,7 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       padding: const EdgeInsets.only(
                           top: 70.0, bottom: 10.0, left: 10.0, right: 10.0),
                       child: Text(
-                        "Create new account",
+                        "Opret en ny bruger",
                         softWrap: true,
                         textAlign: TextAlign.left,
                         style: TextStyle(
@@ -111,7 +113,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 25.0, horizontal: 40.0),
                       child: CustomFlatButton(
-                        title: "Sign Up",
+                        title: "Opret med E-mail",
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
                         textColor: Colors.white,
@@ -122,10 +124,49 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               password: _password.text);
                         },
                         splashColor: Colors.black12,
+                        borderColor: Color.fromRGBO(212, 20, 15, 1.0),
+                        borderWidth: 0,
+                        color: Color.fromRGBO(212, 20, 15, 1.0),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "ELLER",
+                        softWrap: true,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                          decoration: TextDecoration.none,
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w300,
+                          fontFamily: "OpenSans",
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 14.0, horizontal: 40.0),
+                      child: CustomFlatButton(
+                        title: "Opret med Facebook",
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        textColor: Colors.white,
+                        onPressed: () {
+                          _facebookSignUp(context: context);
+                        },
+                        splashColor: Colors.black12,
                         borderColor: Color.fromRGBO(59, 89, 152, 1.0),
                         borderWidth: 0,
                         color: Color.fromRGBO(59, 89, 152, 1.0),
                       ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: InkWell(child: new Text('Vilkår og betingelser', softWrap: true,
+                        textAlign: TextAlign.center,style: TextStyle(color: Colors.blue),),
+              onTap: () => Navigator.pushNamed(context, "/terms")
+                      )
                     ),
                   ],
                 ),
@@ -164,6 +205,41 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
+  void _facebookSignUp({BuildContext context}) async {
+    try {
+      SystemChannels.textInput.invokeMethod('TextInput.hide');
+      _changeBlackVisible();
+      FacebookLogin facebookLogin = new FacebookLogin();
+      FacebookLoginResult result = await facebookLogin
+          .logIn(['email', 'public_profile']);
+      if(result.status == FacebookLoginStatus.loggedIn) {
+        Auth.signInWithFacebok(result.accessToken.token).then((uid) {
+            Auth.getCurrentFirebaseUser().then((firebaseUser) {
+              User user = new User(
+                firstName: firebaseUser.displayName,
+                userID: firebaseUser.uid,
+                email: firebaseUser.email ?? '',
+                profilePictureURL: firebaseUser.photoUrl ?? '',
+              );
+              Auth.addUser(user);
+              onBackPress();
+            });            
+        });
+      }
+      } catch (e) {
+      print("Fejl under oprettelse med Facebook: $e");
+      String exception = Auth.getExceptionText(e);
+      _showErrorAlert(
+        title: "Oprettelse fejlet",
+        content: exception,
+        onPressed: _changeBlackVisible,
+      );
+    }
+          _changeBlackVisible();
+    
+  }
+  
+
   void _signUp(
       {String fullname,
       String email,
@@ -184,16 +260,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
           onBackPress();
         });
       } catch (e) {
-        print("Error in sign up: $e");
+        print("Fejl under oprettelse: $e");
         String exception = Auth.getExceptionText(e);
         _showErrorAlert(
-          title: "Signup failed",
+          title: "Oprettelse mislykkes",
           content: exception,
-          onPressed: _changeBlackVisible, 
+          onPressed: _changeBlackVisible,
         );
       }
     }
-  }
+    }
 
   void _showErrorAlert({String title, String content, VoidCallback onPressed}) {
     showDialog(
@@ -208,4 +284,5 @@ class _SignUpScreenState extends State<SignUpScreen> {
       },
     );
   }
+
 }

@@ -34,7 +34,7 @@ class _SignInScreenState extends State<SignInScreen> {
       borderColor: Colors.grey[400],
       errorColor: Colors.red,
       controller: _email,
-      hint: "E-mail Adress",
+      hint: "E-mail",
       inputType: TextInputType.emailAddress,
       validator: Validator.validateEmail,
     );
@@ -44,7 +44,7 @@ class _SignInScreenState extends State<SignInScreen> {
       errorColor: Colors.red,
       controller: _password,
       obscureText: true,
-      hint: "Password",
+      hint: "Adgangskode",
       validator: Validator.validatePassword,
     );
   }
@@ -65,7 +65,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       padding: const EdgeInsets.only(
                           top: 70.0, bottom: 10.0, left: 10.0, right: 10.0),
                       child: Text(
-                        "Sign In",
+                        "Log Ind",
                         softWrap: true,
                         textAlign: TextAlign.left,
                         style: TextStyle(
@@ -91,7 +91,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 14.0, horizontal: 40.0),
                       child: CustomFlatButton(
-                        title: "Log In",
+                        title: "Log Ind med E-mail",
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
                         textColor: Colors.white,
@@ -110,7 +110,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Text(
-                        "OR",
+                        "ELLER",
                         softWrap: true,
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -126,7 +126,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 14.0, horizontal: 40.0),
                       child: CustomFlatButton(
-                        title: "Facebook Login",
+                        title: "Log ind med Facebook",
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
                         textColor: Colors.white,
@@ -138,6 +138,13 @@ class _SignInScreenState extends State<SignInScreen> {
                         borderWidth: 0,
                         color: Color.fromRGBO(59, 89, 152, 1.0),
                       ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: InkWell(child: new Text('Vilkår og betingelser', softWrap: true,
+                        textAlign: TextAlign.center,style: TextStyle(color: Colors.blue),),
+              onTap: () => Navigator.pushNamed(context, "/terms")
+                      )
                     ),
                   ],
                 ),
@@ -186,10 +193,10 @@ class _SignInScreenState extends State<SignInScreen> {
         await Auth.signIn(email, password)
             .then((uid) => Navigator.of(context).pop());
       } catch (e) {
-        print("Error in email sign in: $e");
+        print("Fejl under login: $e");
         String exception = Auth.getExceptionText(e);
         _showErrorAlert(
-          title: "Login failed",
+          title: "Login fejl",
           content: exception,
           onPressed: _changeBlackVisible,
         );
@@ -224,10 +231,10 @@ class _SignInScreenState extends State<SignInScreen> {
           _changeBlackVisible();
       }
     } catch (e) {
-      print("Error in facebook sign in: $e");
+      print("Fejl under facebook-login: $e");
       String exception = Auth.getExceptionText(e);
       _showErrorAlert(
-        title: "Login failed",
+        title: "Login fejlet",
         content: exception,
         onPressed: _changeBlackVisible,
       );

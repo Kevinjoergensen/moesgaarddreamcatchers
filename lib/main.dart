@@ -1,3 +1,4 @@
+import 'package:Moesgaard_Dreamcatchers/pages/TermsScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:Moesgaard_Dreamcatchers/pages/MainScreen.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         '/signin': (BuildContext context) => new SignInScreen(),
         '/signup': (BuildContext context) => new SignUpScreen(),
         '/main': (BuildContext context) => new MainScreen(),
+        '/terms': (BuildContext context) => new TermsScreen(),
               },
               theme: ThemeData(
                 primaryColor: Colors.white,

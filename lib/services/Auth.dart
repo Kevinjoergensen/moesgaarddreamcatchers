@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:Moesgaard_Dreamcatchers/models/User.dart';
@@ -15,12 +16,22 @@ class Auth {
     return user.uid;
   }
 
-  static final FacebookLogin facebookSignIn = new FacebookLogin();
   static Future<String> signInWithFacebok(String accessToken) async {
     
     AuthCredential authCredential = FacebookAuthProvider.getCredential(
         accessToken: accessToken);
     FirebaseUser fbUser;
+    
+    fbUser = (await FirebaseAuth.instance.signInWithCredential(authCredential)).user;
+    return fbUser.uid;
+  }
+
+  static Future<String> signUpWithFacebok(String accessToken) async {
+    AuthCredential authCredential = FacebookAuthProvider.getCredential(
+        accessToken: accessToken);
+    FirebaseUser fbUser;
+      User user = new User(email: fbUser.email, firstName: fbUser.displayName, profilePictureURL: fbUser.photoUrl, userID: fbUser.uid);
+      Auth.addUser(user);
     
     fbUser = (await FirebaseAuth.instance.signInWithCredential(authCredential)).user;
     return fbUser.uid;
