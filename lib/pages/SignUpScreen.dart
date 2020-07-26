@@ -1,5 +1,3 @@
-import 'package:Moesgaard_Dreamcatchers/pages/Widgets/LoadIndicator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:Moesgaard_Dreamcatchers/pages/Widgets/CustomTextField.dart';
@@ -230,7 +228,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               profilePictureURL: firebaseUser.photoUrl ?? '',
             );
             Auth.addUser(user);
-            savePreferencesOnSignup();
+            savePreferencesOnSignup(user);
             onBackPress();
           });
         });
@@ -259,11 +257,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
         SystemChannels.textInput.invokeMethod('TextInput.hide');
         _changeBlackVisible();
         await Auth.signUp(email, password).then((uID) {
+          User user = new User(email: email, userID: uID, firstName: fullname, profilePictureURL: '');
           Auth.addUser(new User(
               userID: uID,
               email: email,
               firstName: fullname,
               profilePictureURL: ''));
+            savePreferencesOnSignup(user);
           onBackPress();
         });
       } catch (e) {
@@ -278,10 +278,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  void savePreferencesOnSignup() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setInt('number', 2);
-    prefs.setBool('bool',false);
+  Future savePreferencesOnSignup(User user) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('name', user.firstName);
+      prefs.setString('email', user.email);
+      prefs.setString('uId', user.userID);
   }
 
   void _showErrorAlert({String title, String content, VoidCallback onPressed}) {

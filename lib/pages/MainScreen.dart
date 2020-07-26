@@ -1,3 +1,6 @@
+import 'package:Moesgaard_Dreamcatchers/pages/DreamcatcherScreen.dart';
+import 'package:Moesgaard_Dreamcatchers/pages/SettingsScreen.dart';
+import 'package:Moesgaard_Dreamcatchers/pages/WalkThroughScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -5,7 +8,7 @@ import 'package:Moesgaard_Dreamcatchers/services/Auth.dart';
 
 class MainScreen extends StatefulWidget {
   final FirebaseUser firebaseUser;
-  
+
   MainScreen({this.firebaseUser});
 
   _MainScreenState createState() => _MainScreenState();
@@ -13,17 +16,30 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+    int _navIndex = 0;
+List<Widget> _screens = [
+  DreamcatcherScreen(), WalkthroughScreen(), SettingsScreen()
+];
   @override
   void initState() {
     super.initState();
-    print(widget.firebaseUser);
+    
+  }
+
+  PageController _pageController = PageController();
+  void onPageChanged(int index){
+    setState(() {
+      _navIndex = index;
+    });
 
   }
+  void onPageTapped(int selectedIndex){
+    _pageController.jumpToPage(selectedIndex);
+  }
+  
 
   @override
   Widget build(BuildContext context) {
-  
 
     return Scaffold(
         key: _scaffoldKey,
@@ -52,20 +68,38 @@ class _MainScreenState extends State<MainScreen> {
               ListTile(
                 title: Text('Konto'),
                 onTap: () {
-                Navigator.of(context).pushNamed("/signup");
+                  Navigator.of(context).pushNamed("/signup");
                   _scaffoldKey.currentState.openEndDrawer();
                 },
               ),
             ],
           ),
         ),
-        body:        
-        Text("Hej")
-
+        body: PageView(controller: _pageController,
+        children: _screens
         
-          
-          
-        );
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _navIndex,
+          onTap: onPageTapped,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.black,
+          iconSize: 20,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              title: Text("Hjem"),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.camera_alt),
+              title: Text("Catch"),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.account_box),
+              title: Text("Konto"),
+            )
+          ],
+        ));
     // stream: FirebaseDatabase.instance
     //     .reference()
     //     .child("dreamcatchers")
@@ -89,12 +123,11 @@ class _MainScreenState extends State<MainScreen> {
     //   } else {
     //     return CircularProgressIndicator();
     //   }
-        
+
     //         })));
-    }
+  }
+
   void _logOut() async {
     Auth.signOut();
   }
-  
-
 }

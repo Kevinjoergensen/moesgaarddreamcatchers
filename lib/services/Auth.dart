@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:Moesgaard_Dreamcatchers/models/User.dart';
 import 'package:flutter/services.dart';
@@ -9,31 +7,39 @@ import 'package:flutter/services.dart';
 enum authProblems { UserNotFound, PasswordNotValid, NetworkError, UnknownError }
 
 class Auth {
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
   static Future<String> signIn(String email, String password) async {
-    AuthResult result = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email, password: password);
+    AuthResult result = await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
     FirebaseUser user = result.user;
+
     return user.uid;
   }
 
   static Future<String> signInWithFacebok(String accessToken) async {
-    
-    AuthCredential authCredential = FacebookAuthProvider.getCredential(
-        accessToken: accessToken);
+    AuthCredential authCredential =
+        FacebookAuthProvider.getCredential(accessToken: accessToken);
     FirebaseUser fbUser;
-    
-    fbUser = (await FirebaseAuth.instance.signInWithCredential(authCredential)).user;
+
+    fbUser =
+        (await FirebaseAuth.instance.signInWithCredential(authCredential)).user;
     return fbUser.uid;
   }
 
   static Future<String> signUpWithFacebok(String accessToken) async {
-    AuthCredential authCredential = FacebookAuthProvider.getCredential(
-        accessToken: accessToken);
+    AuthCredential authCredential =
+        FacebookAuthProvider.getCredential(accessToken: accessToken);
     FirebaseUser fbUser;
-      User user = new User(email: fbUser.email, firstName: fbUser.displayName, profilePictureURL: fbUser.photoUrl, userID: fbUser.uid);
-      Auth.addUser(user);
-    
-    fbUser = (await FirebaseAuth.instance.signInWithCredential(authCredential)).user;
+    User user = new User(
+        email: fbUser.email,
+        firstName: fbUser.displayName,
+        profilePictureURL: fbUser.photoUrl,
+        userID: fbUser.uid);
+    Auth.addUser(user);
+
+    fbUser =
+        (await FirebaseAuth.instance.signInWithCredential(authCredential)).user;
     return fbUser.uid;
   }
 
@@ -80,6 +86,18 @@ class Auth {
     }
   }
 
+  Future getCurrentUser() async {
+    return await _firebaseAuth.currentUser();
+  }
+
+  static Future deleteUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    checkUserExist(user.uid);
+    user.delete();
+    signOut();
+    print("User deleted");
+  }
+
   static Stream<User> getUser(String userID) {
     return Firestore.instance
         .collection("users")
@@ -91,6 +109,8 @@ class Auth {
       }).first;
     });
   }
+
+  
 
   static String getExceptionText(Exception e) {
     if (e is PlatformException) {
